@@ -1,18 +1,13 @@
-import { useContext } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
+import { useContext } from 'react';
 import { AuthContext } from '../Contexts/AuthContext';
-import Loading from './Loading';
 
 export default function PrivateRoute() {
-  const { user, loading } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
-  if (loading){
-      return (
-      <main className="flex justify-center items-center min-h-screen bg-slate-900">
-          <Loading />
-      </main>
-    );
+  if (!user) {
+    return <Navigate to="/login" replace />;
   }
 
-  return user ? <Outlet /> : <Navigate to="/login" replace />;
+  return <Outlet />;
 }

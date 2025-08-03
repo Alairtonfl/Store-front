@@ -1,13 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import apiClient from '../Services/ApiClient';
-
-export interface Product {
-  id: number;
-  clientId: number;
-  name: string;
-  stock: number;
-  value: number;
-}
+import { Product, fetchProductsByClientIdPaged } from '../Services/ProductService';
 
 interface ProductContextType {
   products: Product[];
@@ -34,7 +26,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
 
-  const fetchProductsByClientIdPaged = async (
+  const fetchProducts = async (
     clientId: number,
     requestedPageIndex = pageIndex,
     requestedPageSize = pageSize
@@ -42,16 +34,10 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get('/api/product/getbyclientidpaged', {
-        params: {
-          clientId,
-          pageIndex: requestedPageIndex,
-          pageSize: requestedPageSize,
-        },
-      });
-      setProducts(response.data.data);
-      setPageIndex(requestedPageIndex);
-      setPageSize(requestedPageSize);
+      const res = await fetchProductsByClientIdPaged(clientId, requestedPageIndex, requestedPageSize);
+      setProducts(res.data);
+      setPageIndex(res.pageIndex);
+      setPageSize(res.pageSize);
     } catch (err: any) {
       setError(err.message || 'Erro ao buscar produtos');
     } finally {
@@ -67,7 +53,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         error,
         pageIndex,
         pageSize,
-        fetchProductsByClientIdPaged,
+        fetchProductsByClientIdPaged: fetchProducts,
       }}
     >
       {children}

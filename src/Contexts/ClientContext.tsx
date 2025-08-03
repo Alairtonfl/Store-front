@@ -1,11 +1,11 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import apiClient from '../Services/ApiClient';
-
-export interface Client {
-  id: number;
-  userId: number;
-  name: string;
-}
+import {
+  Client,
+  fetchClientsPaged,
+  createClient as createClientService,
+  updateClient as updateClientService,
+  deleteClient as deleteClientService,
+} from '../Services/ClientService';
 
 interface ClientContextType {
   clients: Client[];
@@ -14,21 +14,23 @@ interface ClientContextType {
   pageIndex: number;
   pageSize: number;
   fetchClients: (pageIndex?: number, pageSize?: number) => Promise<void>;
-  createClient: (data: { name: string }) => Promise<Client | null>; 
+  createClient: (data: { name: string }) => Promise<Client | null>;
   updateClient: (id: number, data: Partial<Client>) => Promise<Client | null>;
   deleteClient: (id: number) => Promise<boolean>;
+  getTotalStockValueByClientId: (id: number) => Promise<number>;
 }
 
 const ClientContext = createContext<ClientContextType>({
   clients: [],
   loading: false,
   error: null,
-  pageIndex: 0,   
-  pageSize: 10,
+  pageIndex: 0,
+  pageSize: 100,
   fetchClients: async () => {},
   createClient: async () => null,
   updateClient: async () => null,
   deleteClient: async () => false,
+  getTotalStockValueByClientId: async () => 0
 });
 
 export const ClientProvider = ({ children }: { children: ReactNode }) => {
@@ -36,7 +38,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(100);
 
   const fetchClients = async (
     requestedPageIndex = pageIndex,
@@ -45,15 +47,10 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.get('/api/client/getbyuseridpaged', {
-        params: {
-          pageIndex: requestedPageIndex,
-          pageSize: requestedPageSize,
-        },
-      });
-      setClients(response.data.data);
-      setPageIndex(requestedPageIndex);
-      setPageSize(requestedPageSize);
+      const res = await fetchClientsPaged(requestedPageIndex, requestedPageSize);
+      setClients(res.data);
+      setPageIndex(pageIndex);
+      setPageSize(pageSize);
     } catch (err: any) {
       setError(err.message || 'Erro ao buscar clientes');
     } finally {
@@ -65,8 +62,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.post('/api/client/create', data);
-      const newClient = response.data.data;
+      const newClient = await createClientService(data);
       setClients((prev) => [...prev, newClient]);
       return newClient;
     } catch (err: any) {
@@ -82,9 +78,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiClient.put(`/api/clients/${id}`, data);
-      const updatedClient = response.data.data;
-      setClients((prev) => prev.map(c => (c.id === id ? updatedClient : c)));
+      const updatedClient = await updateClientService(id, data);
+      setClients((prev) => prev.map((c) => (c.id === id ? updatedClient : c)));
       return updatedClient;
     } catch (err: any) {
       setError(err.message || 'Erro ao atualizar cliente');
@@ -98,12 +93,27 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      await apiClient.delete(`/api/clients/${id}`);
-      setClients((prev) => prev.filter(c => c.id !== id));
+      await deleteClientService(id);
+      setClients((prev) => prev.filter((c) => c.id !== id));
       return true;
     } catch (err: any) {
       setError(err.message || 'Erro ao deletar cliente');
       return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+    const getTotalStockValueByClientId = async (id: number): Promise<number> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const totalValue = await getTotalStockValueByClientId(id);
+      return totalValue;
+    } catch (err: any) {
+      const apiMessage = err.response?.data?.message || 'Erro ao obter valor total do estoque';
+      setError(apiMessage);
+      throw new Error(apiMessage);
     } finally {
       setLoading(false);
     }
@@ -121,6 +131,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
         createClient,
         updateClient,
         deleteClient,
+        getTotalStockValueByClientId
       }}
     >
       {children}

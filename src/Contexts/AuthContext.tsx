@@ -1,11 +1,5 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import apiClient from '../Services/ApiClient';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { login as loginService, logout as logoutService, fetchCurrentUser, User } from '../Services/AuthService';
 
 interface AuthContextType {
   user: User | null;
@@ -27,14 +21,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     async function fetchUser() {
-      try {
-        const res = await apiClient.get('/api/auth/me');
-        setUser(res.data.data);
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(true);
+      const currentUser = await fetchCurrentUser();
+      setUser(currentUser);
+      setLoading(false);
     }
     fetchUser();
   }, []);
@@ -42,8 +32,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const res = await apiClient.post('/api/auth/login', { email, password });
-      setUser(res.data.data);
+      const res = await loginService(email, password);
+      console.log("Retorno do Context", res)
+      setUser(res);
+    } catch (error) {
+      setUser(null);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -52,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     setLoading(true);
     try {
-      await apiClient.post('/api/auth/logout');
+      await logoutService();
       setUser(null);
     } finally {
       setLoading(false);
