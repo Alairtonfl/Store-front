@@ -60,16 +60,20 @@ export default function Dashboard() {
     fetchClients(pageIndex + 1, pageSize);
   };
 
-  const handlePrevPage = () => {
-    if (pageIndex > 0) fetchClients(pageIndex - 1, pageSize);
-  };
+  // const handlePrevPage = () => {
+  //   if (pageIndex > 0) fetchClients(pageIndex - 1, pageSize);
+  // };
 
   const openAddClientModal = () => setIsAddClientOpen(true);
   const closeAddClientModal = () => setIsAddClientOpen(false);
 
   return (
     <>
-      <Navbar />
+      <Navbar
+        actionButton={
+         <button type="button" className="text-white bg-gray-800 hover:bg-gray-900 px-3 py-1 rounded transition">Lixeira</button>
+        }
+      />
       <main className="p-6 max-w-7xl mx-auto text-white bg-slate-900 min-h-screen">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Clientes</h1>
@@ -86,7 +90,6 @@ export default function Dashboard() {
           <AddClientForm onClose={closeAddClientModal} />
         )}
 
-        {/* Filtro */}
         <input
           type="text"
           placeholder="Buscar por nome..."
@@ -109,10 +112,6 @@ export default function Dashboard() {
                 <Card
                   key={client.id}
                   title={client.name}
-                  description={`Valor: R$ ${stockValues[client.id] !== undefined
-                    ? stockValues[client.id].toFixed(2)
-                    : 'carregando...'
-                    }`}
                   onClick={() => navigate(`/cliente/${client.id}`, { state: { clientName: client.name } })}
                 />
               ))}
@@ -124,8 +123,7 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Paginação */}
-            <div className="flex justify-between items-center mt-4">
+            {/* <div className="flex justify-between items-center mt-4">
               <button
                 onClick={handlePrevPage}
                 disabled={pageIndex === 0 || loading}
@@ -141,11 +139,10 @@ export default function Dashboard() {
               >
                 Próximo
               </button>
-            </div>
+            </div> */}
           </>
         )}
       </main>
     </>
   );
-
 }

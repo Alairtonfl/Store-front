@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { Product, fetchProductsByClientIdPaged } from '../Services/ProductService';
+import { Product, fetchProductsByClientIdPaged, createProductService } from '../Services/ProductService';
 
 interface ProductContextType {
   products: Product[];
@@ -8,16 +8,10 @@ interface ProductContextType {
   pageIndex: number;
   pageSize: number;
   fetchProductsByClientIdPaged: (clientId: number, pageIndex?: number, pageSize?: number) => Promise<void>;
+  createProduct: (clientId: number, name: string, stock: number, price: number) => Promise<Product>;
 }
 
-const ProductContext = createContext<ProductContextType>({
-  products: [],
-  loading: false,
-  error: null,
-  pageIndex: 0,
-  pageSize: 10,
-  fetchProductsByClientIdPaged: async () => {},
-});
+const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -45,6 +39,22 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const createProduct = async (clientId: number, name: string, stock: number, price: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const newProduct = await createProductService({ clientId, name, stock, price });
+      setProducts((prev) => [...prev, newProduct]);
+      return newProduct;
+    } catch (err: any) {
+      const apiMessage = err.response?.data?.message || 'Erro ao criar produto';
+      setError(apiMessage);
+      throw new Error(apiMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ProductContext.Provider
       value={{
@@ -54,6 +64,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         pageIndex,
         pageSize,
         fetchProductsByClientIdPaged: fetchProducts,
+        createProduct
       }}
     >
       {children}
@@ -61,4 +72,10 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useProduct = () => useContext(ProductContext);
+export const useProduct = () => {
+  const context = useContext(ProductContext);
+  if (!context) {
+    throw new Error('useProduct deve ser usado dentro de um ProductProvider');
+  }
+  return context;
+};

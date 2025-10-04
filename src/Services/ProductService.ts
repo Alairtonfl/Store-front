@@ -5,7 +5,7 @@ export interface Product {
   clientId: number;
   name: string;
   stock: number;
-  value: number;
+  price: number;
 }
 
 export interface PagedProductsResponse {
@@ -28,4 +28,24 @@ export async function fetchProductsByClientIdPaged(
     },
   });
   return response.data;
+}
+
+export async function createProductService({
+  clientId,
+  name,
+  stock,
+  price,
+}: {
+  clientId: number;
+  name: string;
+  stock: number;
+  price: number;
+}): Promise<Product> {
+  const response = await apiClient.post('/api/product/create', {
+    clientId,
+    name,
+    stock,
+    price,
+  });
+  return response.data.data;
 }

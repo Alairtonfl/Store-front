@@ -25,7 +25,7 @@ const ClientContext = createContext<ClientContextType>({
   loading: false,
   error: null,
   pageIndex: 0,
-  pageSize: 100,
+  pageSize: 10000,
   fetchClients: async () => {},
   createClient: async () => null,
   updateClient: async () => null,
@@ -38,7 +38,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(100);
+  const [pageSize, setPageSize] = useState(10000);
 
   const fetchClients = async (
     requestedPageIndex = pageIndex,

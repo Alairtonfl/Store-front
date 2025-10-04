@@ -33,7 +33,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const res = await loginService(email, password);
-      console.log("Retorno do Context", res)
       setUser(res);
     } catch (error) {
       setUser(null);
