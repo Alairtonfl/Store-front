@@ -2,18 +2,23 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 import {
   Client,
   fetchClientsPaged,
+  fetchDeletedClientsPaged,
   createClient as createClientService,
   updateClient as updateClientService,
   deleteClient as deleteClientService,
 } from '../Services/ClientService';
+import { useError } from './ErrorContext';
 
 interface ClientContextType {
   clients: Client[];
+  deletedClients: Client[];
   loading: boolean;
+  loadingDeleted: boolean;
   error: string | null;
   pageIndex: number;
   pageSize: number;
   fetchClients: (pageIndex?: number, pageSize?: number) => Promise<void>;
+  fetchDeletedClients: (pageIndex?: number, pageSize?: number) => Promise<void>;
   createClient: (data: { name: string }) => Promise<Client | null>;
   updateClient: (id: number, data: Partial<Client>) => Promise<Client | null>;
   deleteClient: (id: number) => Promise<boolean>;
@@ -22,11 +27,14 @@ interface ClientContextType {
 
 const ClientContext = createContext<ClientContextType>({
   clients: [],
+  deletedClients: [],
   loading: false,
+  loadingDeleted: false,
   error: null,
   pageIndex: 0,
   pageSize: 10000,
   fetchClients: async () => {},
+  fetchDeletedClients: async () => {},
   createClient: async () => null,
   updateClient: async () => null,
   deleteClient: async () => false,
@@ -34,8 +42,11 @@ const ClientContext = createContext<ClientContextType>({
 });
 
 export const ClientProvider = ({ children }: { children: ReactNode }) => {
+  const { showError } = useError();
   const [clients, setClients] = useState<Client[]>([]);
+  const [deletedClients, setDeletedClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingDeleted, setLoadingDeleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10000);
@@ -52,9 +63,29 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
       setPageIndex(pageIndex);
       setPageSize(pageSize);
     } catch (err: any) {
-      setError(err.message || 'Erro ao buscar clientes');
+      const msg = err.message || 'Erro ao buscar clientes';
+      setError(msg);
+      showError(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDeletedClients = async (
+    requestedPageIndex = pageIndex,
+    requestedPageSize = pageSize
+  ) => {
+    setLoadingDeleted(true);
+    setError(null);
+    try {
+      const res = await fetchDeletedClientsPaged(requestedPageIndex, requestedPageSize);
+      setDeletedClients(res.data);
+    } catch (err: any) {
+      const msg = err.message || 'Erro ao buscar clientes excluídos';
+      setError(msg);
+      showError(msg);
+    } finally {
+      setLoadingDeleted(false);
     }
   };
 
@@ -68,6 +99,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao criar cliente';
       setError(apiMessage);
+      showError(apiMessage);
       throw new Error(apiMessage);
     } finally {
       setLoading(false);
@@ -82,7 +114,9 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
       setClients((prev) => prev.map((c) => (c.id === id ? updatedClient : c)));
       return updatedClient;
     } catch (err: any) {
-      setError(err.message || 'Erro ao atualizar cliente');
+      const msg = err.message || 'Erro ao atualizar cliente';
+      setError(msg);
+      showError(msg);
       return null;
     } finally {
       setLoading(false);
@@ -97,7 +131,9 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
       setClients((prev) => prev.filter((c) => c.id !== id));
       return true;
     } catch (err: any) {
-      setError(err.message || 'Erro ao deletar cliente');
+      const msg = err.message || 'Erro ao deletar cliente';
+      setError(msg);
+      showError(msg);
       return false;
     } finally {
       setLoading(false);
@@ -108,11 +144,15 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
+      /*
       const totalValue = await getTotalStockValueByClientId(id);
       return totalValue;
+       */
+      return 0;
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao obter valor total do estoque';
       setError(apiMessage);
+      showError(apiMessage);
       throw new Error(apiMessage);
     } finally {
       setLoading(false);
@@ -123,11 +163,14 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     <ClientContext.Provider
       value={{
         clients,
+        deletedClients,
         loading,
+        loadingDeleted,
         error,
         pageIndex,
         pageSize,
         fetchClients,
+        fetchDeletedClients,
         createClient,
         updateClient,
         deleteClient,

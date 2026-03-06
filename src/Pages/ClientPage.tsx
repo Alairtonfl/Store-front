@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useProduct } from "../Contexts/ProductContext";
 import Navbar from "../Components/NavBar";
-import { ArrowLeft, Plus } from "lucide-react";
-import Card from "../Components/Card";
+import { ArrowLeft, Plus, Search } from "lucide-react";
+import ProductCard from "../Components/ProductCard";
 import AddProductForm from "../Components/AddProductForm";
 
 export default function ClientPage() {
@@ -15,13 +15,22 @@ export default function ClientPage() {
   const {
     products,
     fetchProductsByClientIdPaged,
-    loading,
     pageIndex,
     pageSize,
   } = useProduct();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
+
+  const handleIncreaseQuantity = (productId: number) => {
+    // TODO: integrar com API de atualização de estoque
+    console.log("Aumentar quantidade do produto", productId);
+  };
+
+  const handleRemoveProduct = (productId: number) => {
+    // TODO: integrar com API de remoção de produto
+    console.log("Remover produto", productId);
+  };
 
   useEffect(() => {
     if (clientId) {
@@ -47,90 +56,75 @@ export default function ClientPage() {
     <>
       <Navbar
         actionButton={
-          <svg
-            className="w-6 h-6 text-gray-800 dark:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 10"
+          <button
+            type="button"
+            className="flex items-center gap-2 text-slate-300 hover:text-white"
+            onClick={() => navigate("/")}
           >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 5H1m0 0 4 4M1 5l4-4"
-            />
-          </svg>
+            <ArrowLeft className="w-5 h-5" strokeWidth={2} />
+            <span className="text-sm font-medium">Voltar</span>
+          </button>
         }
         onActionClick={() => navigate("/")}
       />
-      <main className="p-6 max-w-7xl mx-auto text-white bg-slate-900 min-h-screen">
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-2">
+      <main className="min-h-screen bg-surface-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
+                title="Voltar"
+              >
+                <ArrowLeft size={20} strokeWidth={2} />
+              </button>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                {clientName}
+              </h1>
+            </div>
+
             <button
-              onClick={() => navigate("/")}
-              className="text-white hover:text-gray-400"
+              title="Adicionar Produto"
+              className="btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto"
+              onClick={() => setShowForm(true)}
             >
-              <ArrowLeft size={20} />
+              <Plus size={20} strokeWidth={2.5} />
+              Adicionar produto
             </button>
-            <h1 className="text-2xl font-bold">{clientName}</h1>
           </div>
 
-          <button
-            title="Adicionar Produto"
-            className="bg-blue-700 hover:bg-blue-800 p-2 rounded flex items-center justify-center"
-            onClick={() => setShowForm(true)}
-          >
-            <Plus
-              size={24}
-              className="text-white hover:text-gray-300 transition-colors"
+          <div className="relative max-w-sm mb-6">
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"
+              strokeWidth={2}
             />
-          </button>
-        </div>
-
-        <input
-          type="text"
-          placeholder="Buscar produto..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="mb-4 px-4 py-2 border border-slate-600 rounded w-full max-w-sm bg-slate-800 text-white placeholder-gray-400 focus:outline-none focus:ring focus:border-blue-500"
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {filteredProducts.map((product) => (
-            <Card
-              key={product.id}
-              title={product.name}
-              description={`Valor: R$ ${product.price.toFixed(
-                2
-              )} - Qauntidade: ${product.stock}`}
+            <input
+              type="text"
+              placeholder="Buscar produto..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-field pl-11"
             />
-          ))}
-          {filteredProducts.length === 0 && (
-            <p className="text-center text-gray-400 px-4 py-4">
-              Nenhum produto encontrado.
-            </p>
-          )}
-        </div>
+          </div>
 
-        {/* <div className="flex justify-between items-center mt-4">
-          <button
-            onClick={handlePrevPage}
-            disabled={pageIndex === 0 || loading}
-            className="bg-slate-700 text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-slate-600"
-          >
-            Anterior
-          </button>
-          <span className="text-gray-300">Página {pageIndex + 1}</span>
-          <button
-            onClick={handleNextPage}
-            disabled={products.length < pageSize || loading}
-            className="bg-slate-700 text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-slate-600"
-          >
-            Próximo
-          </button>
-        </div> */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onIncreaseQuantity={handleIncreaseQuantity}
+                onRemove={handleRemoveProduct}
+              />
+            ))}
+            {filteredProducts.length === 0 && (
+              <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 rounded-2xl border border-dashed border-slate-700 text-slate-500">
+                <p className="text-center font-medium">Nenhum produto encontrado.</p>
+                <p className="text-sm mt-1">Adicione um produto ou ajuste a busca.</p>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
 
       {showForm && clientId && (

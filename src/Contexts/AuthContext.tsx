@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { login as loginService, logout as logoutService, fetchCurrentUser, User } from '../Services/AuthService';
+import { useError } from './ErrorContext';
 
 interface AuthContextType {
   user: User | null;
@@ -16,15 +17,22 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const { showError } = useError();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchUser() {
       setLoading(true);
-      const currentUser = await fetchCurrentUser();
-      setUser(currentUser);
-      setLoading(false);
+      try {
+        const currentUser = await fetchCurrentUser();
+        setUser(currentUser);
+      } catch (err: any) {
+        const msg = err?.message || 'Erro ao carregar sessão';
+        showError(msg);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchUser();
   }, []);
@@ -34,9 +42,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await loginService(email, password);
       setUser(res);
-    } catch (error) {
+    } catch (err: any) {
       setUser(null);
-      throw error;
+      const msg = err?.message || 'Erro ao fazer login';
+      showError(msg);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -47,6 +57,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await logoutService();
       setUser(null);
+    } catch (err: any) {
+      const msg = err?.message || 'Erro ao sair';
+      showError(msg);
     } finally {
       setLoading(false);
     }

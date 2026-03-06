@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useClient } from '../Contexts/ClientContext';
-import Loading from './Loading';
+import { X } from 'lucide-react';
 
 interface AddClientFormProps {
   onClose: () => void;
@@ -38,41 +38,58 @@ export default function AddClientForm({ onClose }: AddClientFormProps) {
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-      onClick={onClose} // fecha modal ao clicar fora do formulário
+      className="fixed inset-0 z-50 flex justify-center items-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
     >
       <form
         onSubmit={handleSubmit}
-        className="bg-slate-800 p-6 rounded-xl shadow-lg w-full max-w-md text-white"
-        onClick={e => e.stopPropagation()} // impede fechar ao clicar dentro do form
+        className="card-base w-full max-w-md p-6 relative animate-slide-up shadow-card-hover"
+        onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold mb-4">Adicionar Cliente</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
+          disabled={loading}
+          aria-label="Fechar"
+        >
+          <X size={20} strokeWidth={2} />
+        </button>
 
+        <h2 className="text-xl font-bold text-white mb-4 pr-8">Adicionar Cliente</h2>
+
+        <label htmlFor="client-name" className="block mb-2 text-sm font-medium text-slate-300">
+          Nome do cliente
+        </label>
         <input
+          id="client-name"
           type="text"
           placeholder="Nome do cliente"
           value={name}
-          onChange={e => setName(e.target.value)}
-          className="w-full px-4 py-2 rounded bg-slate-700 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setName(e.target.value)}
+          className="input-field mb-2"
         />
-        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        {error && (
+          <p className="text-red-400 text-sm mt-1 mb-2">{error}</p>
+        )}
 
         <div className="flex justify-end gap-2 mt-6">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 text-white"
+            className="btn-secondary"
             disabled={loading}
           >
             Cancelar
           </button>
-
           <button
             type="submit"
-            className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+            className="btn-primary flex items-center gap-2"
             disabled={loading}
           >
-            {loading && <Loading />}
+            {loading && (
+              <span className="w-4 h-4 border-2 border-surface-950 border-t-transparent rounded-full animate-spin" />
+            )}
             {loading ? 'Salvando...' : 'Salvar'}
           </button>
         </div>

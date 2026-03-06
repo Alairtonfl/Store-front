@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { Product, fetchProductsByClientIdPaged, createProductService } from '../Services/ProductService';
+import { useError } from './ErrorContext';
 
 interface ProductContextType {
   products: Product[];
@@ -14,6 +15,7 @@ interface ProductContextType {
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
+  const { showError } = useError();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,9 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       setPageIndex(res.pageIndex);
       setPageSize(res.pageSize);
     } catch (err: any) {
-      setError(err.message || 'Erro ao buscar produtos');
+      const msg = err.message || 'Erro ao buscar produtos';
+      setError(msg);
+      showError(msg);
     } finally {
       setLoading(false);
     }
@@ -49,6 +53,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao criar produto';
       setError(apiMessage);
+      showError(apiMessage);
       throw new Error(apiMessage);
     } finally {
       setLoading(false);

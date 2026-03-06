@@ -1,7 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-.test {
-  @apply text-green-500 text-4xl;
+@layer base {
+  :root {
+    --color-surface-900: #0f172a;
+    --color-surface-800: #1e293b;
+    --color-accent: #06b6d4;
+    --color-accent-hover: #0891b2;
+  }
+
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-surface-950 text-slate-100 font-sans;
+  }
+
+  /* Inputs e botões com transição suave */
+  input, button, [role="button"] {
+    @apply transition-colors duration-200;
+  }
+
+  /* Focus visible acessível */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface-950;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-600 text-surface-950 font-semibold rounded-xl px-4 py-2.5 shadow-glow-sm;
+  }
+
+  .btn-secondary {
+    @apply bg-surface-800 hover:bg-slate-700 text-slate-200 font-medium rounded-xl px-4 py-2.5 border border-slate-600/50;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl bg-surface-800 border border-slate-600/60 text-white placeholder-slate-500
+           focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20;
+  }
+
+  .card-base {
+    @apply rounded-2xl border border-slate-700/50 bg-surface-800/80 shadow-card backdrop-blur-sm;
+  }
 }

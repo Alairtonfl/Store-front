@@ -1,27 +1,36 @@
-import { useEffect, useState } from 'react';
-import { useClient } from '../Contexts/ClientContext';
-import { Eye, Plus } from 'lucide-react';
-import Navbar from '../Components/NavBar';
-import AddClientForm from '../Components/AddClientForm';
-import { useNavigate } from 'react-router-dom';
-import Card from '../Components/Card';
-import SkeletonCard from '../Components/SkeletonCard';
+import { useEffect, useState } from "react";
+import { useClient } from "../Contexts/ClientContext";
+import { Plus, Search, Trash2 } from "lucide-react";
+import Navbar from "../Components/NavBar";
+import AddClientForm from "../Components/AddClientForm";
+import { useNavigate } from "react-router-dom";
+import ClientCard from "../Components/ClientCard";
+import SkeletonCard from "../Components/SkeletonCard";
 
 export default function Dashboard() {
-  const { clients, fetchClients, loading, pageIndex, pageSize, getTotalStockValueByClientId } = useClient();
-  const [searchTerm, setSearchTerm] = useState('');
+  const {
+    clients,
+    fetchClients,
+    loading,
+    pageIndex,
+    pageSize,
+    getTotalStockValueByClientId,
+    deleteClient,
+  } = useClient();
+  const [searchTerm, setSearchTerm] = useState("");
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
   const navigate = useNavigate();
-  const [stockValues, setStockValues] = useState<{ [clientId: number]: number }>({});
+  const [stockValues, setStockValues] = useState<{
+    [clientId: number]: number;
+  }>({});
   const [stockLoading, setStockLoading] = useState(true);
   const isLoadingAll = loading || stockLoading;
-
 
   useEffect(() => {
     fetchClients();
   }, []);
 
-  const filteredClients = clients.filter(client =>
+  const filteredClients = clients.filter((client) =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -60,88 +69,96 @@ export default function Dashboard() {
     fetchClients(pageIndex + 1, pageSize);
   };
 
-  // const handlePrevPage = () => {
-  //   if (pageIndex > 0) fetchClients(pageIndex - 1, pageSize);
-  // };
-
   const openAddClientModal = () => setIsAddClientOpen(true);
   const closeAddClientModal = () => setIsAddClientOpen(false);
+
+  const handleViewClient = (clientId: number) => {
+    const client = clients.find((c) => c.id === clientId);
+    if (client) {
+      navigate(`/cliente/${clientId}`, { state: { clientName: client.name } });
+    }
+  };
+
+  const handleDeleteClient = async (clientId: number) => {
+    if (!window.confirm("Tem certeza que deseja excluir este cliente?")) return;
+    await deleteClient(clientId);
+  };
 
   return (
     <>
       <Navbar
         actionButton={
-         <button type="button" className="text-white bg-gray-800 hover:bg-gray-900 px-3 py-1 rounded transition">Lixeira</button>
-        }
-      />
-      <main className="p-6 max-w-7xl mx-auto text-white bg-slate-900 min-h-screen">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Clientes</h1>
           <button
-            onClick={openAddClientModal}
-            title="Adicionar Cliente"
-            className="bg-blue-700 hover:bg-blue-800 p-2 rounded flex items-center justify-center"
+            type="button"
+            className="flex items-center gap-2 text-slate-300 hover:text-white"
+            onClick={() => navigate("/trash")}
           >
-            <Plus size={24} className="text-white hover:text-gray-300 transition-colors" />
+            <Trash2 className="w-5 h-5" />
+            <span className="text-sm font-medium">Lixeira</span>
           </button>
-        </div>
-
-        {isAddClientOpen && (
-          <AddClientForm onClose={closeAddClientModal} />
-        )}
-
-        <input
-          type="text"
-          placeholder="Buscar por nome..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="mb-4 px-4 py-2 border border-slate-600 rounded w-full max-w-sm bg-slate-800 text-white placeholder-gray-400 focus:outline-none focus:ring focus:border-blue-500"
-        />
-
-        {isLoadingAll ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
+        }
+        onActionClick={() => navigate("/trash")}
+      />
+      <main className="min-h-screen bg-surface-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Clientes
+            </h1>
+            <button
+              onClick={openAddClientModal}
+              title="Adicionar Cliente"
+              className="btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto"
+            >
+              <Plus size={20} strokeWidth={2.5} />
+              Adicionar cliente
+            </button>
           </div>
-        ) : (
-          <>
-            {/* Cards de Clientes */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {filteredClients.map(client => (
-                <Card
-                  key={client.id}
-                  title={client.name}
-                  onClick={() => navigate(`/cliente/${client.id}`, { state: { clientName: client.name } })}
-                />
+
+          {isAddClientOpen && <AddClientForm onClose={closeAddClientModal} />}
+
+          <div className="relative max-w-sm mb-6">
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"
+              strokeWidth={2}
+            />
+            <input
+              type="text"
+              placeholder="Buscar por nome..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-field pl-11"
+            />
+          </div>
+
+          {isLoadingAll ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
+              {[...Array(6)].map((_, i) => (
+                <SkeletonCard key={i} />
               ))}
-
-              {filteredClients.length === 0 && (
-                <div className="col-span-full text-center text-gray-400 p-4">
-                  Nenhum cliente encontrado.
-                </div>
-              )}
             </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredClients.map((client) => (
+                  <ClientCard
+                    key={client.id}
+                    client={client}
+                    onView={handleViewClient}
+                    onDelete={handleDeleteClient}
+                  />
+                ))}
 
-            {/* <div className="flex justify-between items-center mt-4">
-              <button
-                onClick={handlePrevPage}
-                disabled={pageIndex === 0 || loading}
-                className="bg-slate-700 text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-slate-600"
-              >
-                Anterior
-              </button>
-              <span className="text-gray-300">Página {pageIndex + 1}</span>
-              <button
-                onClick={handleNextPage}
-                disabled={clients.length < pageSize || loading}
-                className="bg-slate-700 text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-slate-600"
-              >
-                Próximo
-              </button>
-            </div> */}
-          </>
-        )}
+                {filteredClients.length === 0 && (
+                  <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 rounded-2xl border border-dashed border-slate-700 text-slate-500">
+                    <p className="text-center font-medium">Nenhum cliente encontrado.</p>
+                    <p className="text-sm mt-1">Adicione um cliente ou ajuste a busca.</p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </main>
     </>
   );

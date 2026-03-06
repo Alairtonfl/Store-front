@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
+import { LogOut } from 'lucide-react';
 import { AuthContext } from '../Contexts/AuthContext';
 
 interface NavbarProps {
   actionButton?: React.ReactNode;
-  onActionClick?: () => void; // função passada de fora
+  onActionClick?: () => void;
 }
 
 export default function Navbar({ actionButton, onActionClick }: NavbarProps) {
@@ -14,32 +15,31 @@ export default function Navbar({ actionButton, onActionClick }: NavbarProps) {
   };
 
   return (
-    <nav className="bg-slate-800 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <nav className="sticky top-0 z-40 border-b border-slate-700/50 bg-surface-900/80 backdrop-blur-md shadow-card">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
         {actionButton && (
-          <div onClick={onActionClick} className="cursor-pointer">
+          <div
+            onClick={onActionClick}
+            className="cursor-pointer p-2 -ml-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && onActionClick?.()}
+          >
             {actionButton}
           </div>
         )}
 
-        <div>
+        <div className="flex items-center gap-2">
           {user && (
-            <svg
+            <button
+              type="button"
               onClick={handleLogout}
-              className="w-6 h-6 text-gray-800 dark:text-white cursor-pointer"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 18 16"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors"
+              title="Sair"
             >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3"
-              />
-            </svg>
+              <LogOut className="w-5 h-5" strokeWidth={2} />
+              <span className="text-sm font-medium hidden sm:inline">Sair</span>
+            </button>
           )}
         </div>
       </div>
