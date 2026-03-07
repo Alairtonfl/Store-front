@@ -50,3 +50,12 @@ export async function createProductService({
   });
   return response.data.data;
 }
+
+export async function updateProductService(id: number): Promise<Product> {
+  const response = await apiClient.put(`/api/product/update/${id}`);
+  return response.data.data;
+}
+
+export async function deleteProductService(id: number): Promise<void> {
+  await apiClient.delete(`/api/product/delete/${id}`);
+}

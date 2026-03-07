@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { Product, fetchProductsByClientIdPaged, createProductService } from '../Services/ProductService';
+import { Product, fetchProductsByClientIdPaged, createProductService, updateProductService, deleteProductService } from '../Services/ProductService';
 import { useError } from './ErrorContext';
 
 interface ProductContextType {
@@ -10,6 +10,8 @@ interface ProductContextType {
   pageSize: number;
   fetchProductsByClientIdPaged: (clientId: number, pageIndex?: number, pageSize?: number) => Promise<void>;
   createProduct: (clientId: number, name: string, stock: number, price: number) => Promise<Product>;
+  updateProduct: (id: number) => Promise<Product>;
+  deleteProduct: (id: number) => Promise<boolean>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -20,7 +22,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10000);
 
   const fetchProducts = async (
     clientId: number,
@@ -60,6 +62,41 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const updateProduct = async (id: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updated = await updateProductService(id);
+      // API pode retornar id: 0; usamos o id do parâmetro para localizar e manter o produto correto
+      setProducts((prev) => prev.map((p) => (p.id === id ? { ...updated, id: p.id } : p)));
+      return { ...updated, id };
+    } catch (err: any) {
+      const apiMessage = err.response?.data?.message || 'Erro ao atualizar estoque';
+      setError(apiMessage);
+      showError(apiMessage);
+      throw new Error(apiMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteProduct = async (id: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteProductService(id);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      return true;
+    } catch (err: any) {
+      const apiMessage = err.response?.data?.message || 'Erro ao remover produto';
+      setError(apiMessage);
+      showError(apiMessage);
+      throw new Error(apiMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ProductContext.Provider
       value={{
@@ -69,7 +106,9 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         pageIndex,
         pageSize,
         fetchProductsByClientIdPaged: fetchProducts,
-        createProduct
+        createProduct,
+        updateProduct,
+        deleteProduct
       }}
     >
       {children}

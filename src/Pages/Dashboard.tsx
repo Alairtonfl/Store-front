@@ -14,17 +14,14 @@ export default function Dashboard() {
     loading,
     pageIndex,
     pageSize,
-    getTotalStockValueByClientId,
     deleteClient,
   } = useClient();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddClientOpen, setIsAddClientOpen] = useState(false);
   const navigate = useNavigate();
-  const [stockValues, setStockValues] = useState<{
-    [clientId: number]: number;
-  }>({});
-  const [stockLoading, setStockLoading] = useState(true);
-  const isLoadingAll = loading || stockLoading;
+
+  const isLoadingAll = loading;
 
   useEffect(() => {
     fetchClients();
@@ -33,37 +30,6 @@ export default function Dashboard() {
   const filteredClients = clients.filter((client) =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  useEffect(() => {
-    const fetchStockValues = async () => {
-      setStockLoading(true);
-      const promises = filteredClients.map(async (client) => {
-        try {
-          const total = await getTotalStockValueByClientId(client.id);
-          return { id: client.id, total };
-        } catch {
-          return { id: client.id, total: 0 };
-        }
-      });
-
-      const results = await Promise.all(promises);
-
-      const values: { [id: number]: number } = {};
-      results.forEach(({ id, total }) => {
-        values[id] = total;
-      });
-
-      setStockValues(values);
-      setStockLoading(false);
-    };
-
-    if (filteredClients.length > 0) {
-      fetchStockValues();
-    } else {
-      setStockValues({});
-      setStockLoading(false);
-    }
-  }, [clients, getTotalStockValueByClientId]);
 
   const handleNextPage = () => {
     fetchClients(pageIndex + 1, pageSize);
@@ -138,25 +104,27 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredClients.map((client) => (
-                  <ClientCard
-                    key={client.id}
-                    client={client}
-                    onView={handleViewClient}
-                    onDelete={handleDeleteClient}
-                  />
-                ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredClients.map((client) => (
+                <ClientCard
+                  key={client.id}
+                  client={client}
+                  onView={handleViewClient}
+                  onDelete={handleDeleteClient}
+                />
+              ))}
 
-                {filteredClients.length === 0 && (
-                  <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 rounded-2xl border border-dashed border-slate-700 text-slate-500">
-                    <p className="text-center font-medium">Nenhum cliente encontrado.</p>
-                    <p className="text-sm mt-1">Adicione um cliente ou ajuste a busca.</p>
-                  </div>
-                )}
-              </div>
-            </>
+              {filteredClients.length === 0 && (
+                <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 rounded-2xl border border-dashed border-slate-700 text-slate-500">
+                  <p className="text-center font-medium">
+                    Nenhum cliente encontrado.
+                  </p>
+                  <p className="text-sm mt-1">
+                    Adicione um cliente ou ajuste a busca.
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </main>

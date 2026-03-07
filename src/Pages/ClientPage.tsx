@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useProduct } from "../Contexts/ProductContext";
+import { useClient } from "../Contexts/ClientContext";
 import Navbar from "../Components/NavBar";
 import { ArrowLeft, Plus, Search } from "lucide-react";
 import ProductCard from "../Components/ProductCard";
@@ -17,24 +18,48 @@ export default function ClientPage() {
     fetchProductsByClientIdPaged,
     pageIndex,
     pageSize,
+    updateProduct,
+    deleteProduct,
   } = useProduct();
+  const { getTotalStockValueByClientId } = useClient();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [totalOwed, setTotalOwed] = useState<number | null>(null);
 
-  const handleIncreaseQuantity = (productId: number) => {
-    // TODO: integrar com API de atualização de estoque
-    console.log("Aumentar quantidade do produto", productId);
+  const handleIncreaseQuantity = async (productId: number) => {
+    if (!clientId) return;
+    try {
+      await updateProduct(productId);
+      getTotalStockValueByClientId(Number(clientId)).then(setTotalOwed).catch(() => setTotalOwed(0));
+    } catch {
+      // erro já tratado no contexto
+    }
   };
 
-  const handleRemoveProduct = (productId: number) => {
-    // TODO: integrar com API de remoção de produto
-    console.log("Remover produto", productId);
+  const handleRemoveProduct = async (productId: number) => {
+    if (!clientId) return;
+    try {
+      await deleteProduct(productId);
+      getTotalStockValueByClientId(Number(clientId)).then(setTotalOwed).catch(() => setTotalOwed(0));
+    } catch {
+      // erro já tratado no contexto
+    }
   };
 
   useEffect(() => {
     if (clientId) {
       fetchProductsByClientIdPaged(Number(clientId));
+    }
+  }, [clientId]);
+
+  useEffect(() => {
+    if (clientId) {
+      getTotalStockValueByClientId(Number(clientId))
+        .then(setTotalOwed)
+        .catch(() => setTotalOwed(0));
+    } else {
+      setTotalOwed(null);
     }
   }, [clientId]);
 
@@ -70,18 +95,31 @@ export default function ClientPage() {
       <main className="min-h-screen bg-surface-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => navigate("/")}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
-                title="Voltar"
-              >
-                <ArrowLeft size={20} strokeWidth={2} />
-              </button>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                {clientName}
-              </h1>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate("/")}
+                  className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
+                  title="Voltar"
+                >
+                  <ArrowLeft size={20} strokeWidth={2} />
+                </button>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  {clientName}
+                </h1>
+              </div>
+              {totalOwed !== null && (
+                <p className="text-slate-400 text-sm pl-14">
+                  Total a receber:{" "}
+                  <span className="font-semibold text-amber-400">
+                    {new Intl.NumberFormat("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    }).format(totalOwed)}
+                  </span>
+                </p>
+              )}
             </div>
 
             <button

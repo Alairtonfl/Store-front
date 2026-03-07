@@ -6,6 +6,7 @@ import {
   createClient as createClientService,
   updateClient as updateClientService,
   deleteClient as deleteClientService,
+  getTotalStockValueByClientId as getTotalStockValueByClientIdService,
 } from '../Services/ClientService';
 import { useError } from './ErrorContext';
 
@@ -33,8 +34,8 @@ const ClientContext = createContext<ClientContextType>({
   error: null,
   pageIndex: 0,
   pageSize: 10000,
-  fetchClients: async () => {},
-  fetchDeletedClients: async () => {},
+  fetchClients: async () => { },
+  fetchDeletedClients: async () => { },
   createClient: async () => null,
   updateClient: async () => null,
   deleteClient: async () => false,
@@ -140,15 +141,12 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-    const getTotalStockValueByClientId = async (id: number): Promise<number> => {
+  const getTotalStockValueByClientId = async (id: number): Promise<number> => {
     setLoading(true);
     setError(null);
     try {
-      /*
-      const totalValue = await getTotalStockValueByClientId(id);
+      const totalValue = await getTotalStockValueByClientIdService(id);
       return totalValue;
-       */
-      return 0;
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao obter valor total do estoque';
       setError(apiMessage);

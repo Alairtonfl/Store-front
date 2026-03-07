@@ -38,7 +38,7 @@ export async function updateClient(id: number, data: Partial<Client>): Promise<C
 }
 
 export async function getTotalStockValueByClientId(id: number): Promise<number> {
-  const response = await apiClient.put(`/api/clients/stock-value/${id}`);
+  const response = await apiClient.get(`/api/client/stock-value/${id}`);
   return response.data.data;
 }
 
