@@ -27,7 +27,6 @@ export default function AppRoutes() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/trash" element={<TrashPage />} />
           <Route path="/cliente/:clientId" element={<ClientPage />} />
-          {/* outras rotas privadas */}
         </Route>
       </Routes>
     </div>

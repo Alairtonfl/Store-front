@@ -17,7 +17,7 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { showError } = useError();
+  const { showError, showSuccess } = useError();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 

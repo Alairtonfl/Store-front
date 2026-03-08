@@ -18,7 +18,7 @@ interface ProductContextType {
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
-  const { showError } = useError();
+  const { showError, showSuccess } = useError();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +56,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     try {
       const newProduct = await createProductService({ clientId, name, stock, price });
       setProducts((prev) => [...prev, newProduct]);
+      showSuccess('Produto criado com sucesso');
       return newProduct;
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao criar produto';
@@ -73,6 +74,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     try {
       const updated = await updateProductService(id);
       setProducts((prev) => prev.map((p) => (p.id === id ? { ...updated, id: p.id } : p)));
+      showSuccess('Estoque atualizado');
       return { ...updated, id };
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao atualizar estoque';
@@ -90,6 +92,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     try {
       await deleteProductService(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
+      showSuccess('Produto removido');
       return true;
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao remover produto';

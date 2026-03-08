@@ -142,33 +142,33 @@ export default function ClientPage() {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <div className="flex flex-row gap-2 w-full sm:w-auto justify-start">
               <button
                 type="button"
                 title="Gerar PDF"
                 onClick={handleGeneratePdf}
                 disabled={loading}
-                className="btn-secondary inline-flex items-center justify-center gap-2 text-sm"
+                className="btn-secondary inline-flex items-center justify-center gap-2 text-sm p-3.5 sm:px-6"
               >
                 <FileText size={20} strokeWidth={2} />
-                Gerar PDF
+                <span className="hidden sm:inline">Gerar PDF</span>
               </button>
               <button
                 type="button"
                 title="Pagar tudo"
                 onClick={handlePayAll}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-sm font-semibold transition-colors"
+                className="inline-flex items-center justify-center gap-2 p-3.5 sm:px-6 rounded-xl border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-sm font-semibold transition-colors"
               >
                 <CheckCircle size={20} strokeWidth={2} />
-                Pagar tudo
+                <span className="hidden sm:inline">Pagar</span>
               </button>
               <button
                 title="Adicionar Produto"
-                className="btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto text-sm"
+                className="btn-primary inline-flex items-center justify-center gap-2 text-sm p-3.5 sm:px-6"
                 onClick={() => setShowForm(true)}
               >
                 <Plus size={20} strokeWidth={2.5} />
-                Adicionar
+                <span className="hidden sm:inline">Adicionar</span>
               </button>
             </div>
           </div>

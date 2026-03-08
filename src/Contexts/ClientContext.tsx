@@ -49,7 +49,7 @@ const ClientContext = createContext<ClientContextType>({
 });
 
 export const ClientProvider = ({ children }: { children: ReactNode }) => {
-  const { showError } = useError();
+  const { showError, showSuccess } = useError();
   const [clients, setClients] = useState<Client[]>([]);
   const [deletedClients, setDeletedClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
@@ -102,10 +102,12 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     try {
       const newClient = await createClientService(data);
       setClients((prev) => [...prev, newClient]);
+      showSuccess('Cliente criado com sucesso');
       return newClient;
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao criar cliente';
       setError(apiMessage);
+      showError(apiMessage);
       throw new Error(apiMessage);
     } finally {
       setLoading(false);
@@ -118,6 +120,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     try {
       const updatedClient = await updateClientService(id, data);
       setClients((prev) => prev.map((c) => (c.id === id ? updatedClient : c)));
+      showSuccess('Cliente atualizado com sucesso');
       return updatedClient;
     } catch (err: any) {
       const msg = err.message || 'Erro ao atualizar cliente';
@@ -135,6 +138,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     try {
       await deleteClientService(id);
       setClients((prev) => prev.filter((c) => c.id !== id));
+      showSuccess('Cliente removido com sucesso');
       return true;
     } catch (err: any) {
       const msg = err.message || 'Erro ao deletar cliente';
@@ -168,9 +172,11 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { success, message } = await payClientAccountService(id);
       const msg = message || 'Operação concluída com sucesso';
-      showError(msg);
-
-      if (!success) {
+      
+      if (success) {
+        showSuccess(msg);
+      } else {
+        showError(msg);
         setError(msg);
       }
 
@@ -191,6 +197,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       await generatePdfService(id, clientName);
+      showSuccess('PDF gerado com sucesso');
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao gerar PDF';
       setError(apiMessage);

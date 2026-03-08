@@ -20,12 +20,10 @@
     @apply bg-surface-950 text-slate-100 font-sans;
   }
 
-  /* Inputs e botões com transição suave */
   input, button, [role="button"] {
     @apply transition-colors duration-200;
   }
 
-  /* Focus visible acessível */
   *:focus-visible {
     @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-surface-950;
   }
