@@ -7,6 +7,7 @@ import {
   updateClient as updateClientService,
   deleteClient as deleteClientService,
   getTotalStockValueByClientId as getTotalStockValueByClientIdService,
+  payClientAccount as payClientAccountService,
 } from '../Services/ClientService';
 import { useError } from './ErrorContext';
 
@@ -24,6 +25,7 @@ interface ClientContextType {
   updateClient: (id: number, data: Partial<Client>) => Promise<Client | null>;
   deleteClient: (id: number) => Promise<boolean>;
   getTotalStockValueByClientId: (id: number) => Promise<number>;
+  payClientAccount: (id: number) => Promise<boolean>;
 }
 
 const ClientContext = createContext<ClientContextType>({
@@ -39,7 +41,8 @@ const ClientContext = createContext<ClientContextType>({
   createClient: async () => null,
   updateClient: async () => null,
   deleteClient: async () => false,
-  getTotalStockValueByClientId: async () => 0
+  getTotalStockValueByClientId: async () => 0,
+  payClientAccount: async () => false
 });
 
 export const ClientProvider = ({ children }: { children: ReactNode }) => {
@@ -100,7 +103,6 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     } catch (err: any) {
       const apiMessage = err.response?.data?.message || 'Erro ao criar cliente';
       setError(apiMessage);
-      showError(apiMessage);
       throw new Error(apiMessage);
     } finally {
       setLoading(false);
@@ -157,6 +159,30 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const payClientAccount = async (id: number): Promise<boolean> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { success, message } = await payClientAccountService(id);
+      const msg = message || 'Operação concluída com sucesso';
+      showError(msg);
+
+      if (!success) {
+        setError(msg);
+      }
+
+      return success;
+    } catch (err: any) {
+      const apiMessage =
+        err.response?.data?.message || 'Erro ao pagar todas as contas do cliente';
+      setError(apiMessage);
+      showError(apiMessage);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ClientContext.Provider
       value={{
@@ -172,7 +198,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
         createClient,
         updateClient,
         deleteClient,
-        getTotalStockValueByClientId
+        getTotalStockValueByClientId,
+        payClientAccount
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+import { User, Trash2 } from "lucide-react";
 
 export interface ClientCardClient {
   id: number;
@@ -57,22 +57,33 @@ export default function ClientCard({
           : ""
       }`}
     >
-      {/* Nome do cliente */}
-      <div className="flex items-start gap-2 min-w-0">
-        <User className="w-5 h-5 text-accent-400 shrink-0 mt-0.5" strokeWidth={2} />
-        <h3
-          className={`text-lg font-semibold text-white truncate transition-colors ${
-            isClickable ? "group-hover:text-accent-400" : ""
-          }`}
-          title={client.name}
-        >
-          {client.name}
-        </h3>
+
+      <div className="flex items-start justify-between gap-2 min-w-0">
+        <div className="flex items-start gap-2 min-w-0">
+          <User className="w-5 h-5 text-accent-400 shrink-0 mt-0.5" strokeWidth={2} />
+          <h3
+            className={`text-lg font-semibold text-white truncate transition-colors ${
+              isClickable ? "group-hover:text-accent-400" : ""
+            }`}
+            title={client.name}
+          >
+            {client.name}
+          </h3>
+        </div>
+        {!isDeleted && onDelete && (
+          <button
+            type="button"
+            onClick={handleDeleteClick}
+            className="p-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300 transition-colors"
+            title="Deletar cliente"
+          >
+            <Trash2 className="w-4 h-4" strokeWidth={2} />
+          </button>
+        )}
       </div>
 
-      {/* Ação: Deletar ou Restaurar */}
-      <div className="mt-auto pt-4 border-t border-slate-700/50">
-        {isDeleted ? (
+      {isDeleted && (
+        <div className="mt-auto pt-4 border-t border-slate-700/50">
           <button
             type="button"
             onClick={handleRestoreClick}
@@ -81,17 +92,8 @@ export default function ClientCard({
           >
             <span>Restaurar</span>
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={handleDeleteClick}
-            className="w-full min-h-[44px] sm:min-h-[40px] flex items-center justify-center gap-2 px-4 py-3 sm:py-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 font-medium text-sm transition-colors active:scale-[0.98]"
-            title="Deletar cliente"
-          >
-            <span>Deletar</span>
-          </button>
-        )}
-      </div>
+        </div>
+      )}
     </article>
   );
 }

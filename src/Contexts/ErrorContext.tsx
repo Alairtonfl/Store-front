@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useRef } from 'react';
 import { X } from 'lucide-react';
 
 interface ErrorContextType {
@@ -11,13 +11,25 @@ const ErrorContext = createContext<ErrorContextType>({
 
 export function ErrorProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
+  const timerRef = useRef<number | null>(null);
 
   const showError = (message: string) => {
     setError(message);
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+    }
+    timerRef.current = window.setTimeout(() => {
+      setError(null);
+      timerRef.current = null;
+    }, 3000);
   };
 
   const clearError = () => {
     setError(null);
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
   };
 
   return (

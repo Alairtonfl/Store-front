@@ -13,6 +13,11 @@ export interface PagedClientsResponse {
   totalCount: number;
 }
 
+export interface PayClientAccountResult {
+  success: boolean;
+  message: string;
+}
+
 export async function fetchClientsPaged(pageIndex: number, pageSize: number): Promise<PagedClientsResponse> {
   const response = await apiClient.get('/api/client/getbyuseridpaged', {
     params: { pageIndex, pageSize },
@@ -44,4 +49,14 @@ export async function getTotalStockValueByClientId(id: number): Promise<number> 
 
 export async function deleteClient(id: number): Promise<void> {
   await apiClient.delete(`/api/client/delete/${id}`);
+}
+
+export async function payClientAccount(id: number): Promise<PayClientAccountResult> {
+  const response = await apiClient.post(`/api/client/pay-account/${id}`);
+  const data: any = response.data ?? {};
+
+  const success: boolean = data.success ?? true;
+  const message: string = data.message;
+
+  return { success, message };
 }

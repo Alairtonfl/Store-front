@@ -21,7 +21,7 @@ export default function ClientPage() {
     updateProduct,
     deleteProduct,
   } = useProduct();
-  const { getTotalStockValueByClientId } = useClient();
+  const { getTotalStockValueByClientId, payClientAccount } = useClient();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -33,7 +33,7 @@ export default function ClientPage() {
       await updateProduct(productId);
       getTotalStockValueByClientId(Number(clientId)).then(setTotalOwed).catch(() => setTotalOwed(0));
     } catch {
-      // erro já tratado no contexto
+
     }
   };
 
@@ -43,7 +43,18 @@ export default function ClientPage() {
       await deleteProduct(productId);
       getTotalStockValueByClientId(Number(clientId)).then(setTotalOwed).catch(() => setTotalOwed(0));
     } catch {
-      // erro já tratado no contexto
+
+    }
+  };
+
+  const handlePayAll = async () => {
+    if (!clientId) return;
+    try {
+      const success = await payClientAccount(Number(clientId));
+      if (success) {
+        navigate("/");
+      }
+    } catch {
     }
   };
 
@@ -122,14 +133,24 @@ export default function ClientPage() {
               )}
             </div>
 
-            <button
-              title="Adicionar Produto"
-              className="btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto"
-              onClick={() => setShowForm(true)}
-            >
-              <Plus size={20} strokeWidth={2.5} />
-              Adicionar produto
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                title="Pagar tudo"
+                onClick={handlePayAll}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-sm font-medium transition-colors"
+              >
+                Pagar tudo
+              </button>
+              <button
+                title="Adicionar Produto"
+                className="btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto"
+                onClick={() => setShowForm(true)}
+              >
+                <Plus size={20} strokeWidth={2.5} />
+                Adicionar produto
+              </button>
+            </div>
           </div>
 
           <div className="relative max-w-sm mb-6">
@@ -168,7 +189,17 @@ export default function ClientPage() {
       {showForm && clientId && (
         <AddProductForm
           clientId={Number(clientId)}
-          onClose={() => setShowForm(false)}
+          onClose={async () => {
+            setShowForm(false);
+            if (clientId) {
+              try {
+                const total = await getTotalStockValueByClientId(Number(clientId));
+                setTotalOwed(total);
+              } catch {
+                setTotalOwed(0);
+              }
+            }
+          }}
         />
       )}
     </>

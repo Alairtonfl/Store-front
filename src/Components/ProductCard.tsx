@@ -1,4 +1,4 @@
-import { Package, Calendar, DollarSign, Layers } from "lucide-react";
+import { Package, Calendar, DollarSign, Layers, Trash2, Plus } from "lucide-react";
 
 export interface ProductCardProduct {
   id: number;
@@ -35,15 +35,33 @@ export default function ProductCard({
 }: ProductCardProps) {
   return (
     <article className="card-base p-4 sm:p-5 flex flex-col gap-4">
-      {/* Nome do produto */}
-      <div className="flex items-start gap-2 min-w-0">
-        <Package className="w-5 h-5 text-accent-400 shrink-0 mt-0.5" strokeWidth={2} />
-        <h3 className="text-lg font-semibold text-white truncate" title={product.name}>
-          {product.name}
-        </h3>
+      <div className="flex items-start gap-2 min-w-0 justify-between">
+        <div className="flex items-start gap-2 min-w-0">
+          <Package className="w-5 h-5 text-accent-400 shrink-0 mt-0.5" strokeWidth={2} />
+          <h3 className="text-lg font-semibold text-white truncate" title={product.name}>
+            {product.name}
+          </h3>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => onIncreaseQuantity?.(product.id)}
+            className="p-2 rounded-lg bg-accent/15 text-accent-400 hover:bg-accent/25 hover:text-accent-300 transition-colors"
+            title="Aumentar quantidade"
+          >
+            <Plus className="w-4 h-4" strokeWidth={2.5} />
+          </button>
+          <button
+            type="button"
+            onClick={() => onRemove?.(product.id)}
+            className="p-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300 transition-colors"
+            title="Remover produto"
+          >
+            <Trash2 className="w-4 h-4" strokeWidth={2} />
+          </button>
+        </div>
       </div>
 
-      {/* Valor, quantidade e data em grid responsivo */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="flex items-center gap-2 text-slate-300">
           <DollarSign className="w-4 h-4 text-accent-400 shrink-0" strokeWidth={2} />
@@ -70,26 +88,7 @@ export default function ProductCard({
         </div>
       </div>
 
-      {/* Ações: área de toque generosa no mobile */}
-      <div className="mt-auto pt-4 border-t border-slate-700/50 flex gap-2">
-        <button
-          type="button"
-          onClick={() => onIncreaseQuantity?.(product.id)}
-          className="flex-1 min-h-[44px] sm:min-h-0 sm:flex-initial flex items-center justify-center gap-2 px-4 py-3 sm:py-2 rounded-xl bg-accent/20 text-accent-400 hover:bg-accent/30 font-medium text-sm transition-colors active:scale-[0.98]"
-          title="Aumentar quantidade"
-        >
-          <span className="text-lg font-bold">+</span>
-          <span>Aumentar</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onRemove?.(product.id)}
-          className="flex-1 min-h-[44px] sm:min-h-0 sm:flex-initial flex items-center justify-center gap-2 px-4 py-3 sm:py-2 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 font-medium text-sm transition-colors active:scale-[0.98]"
-          title="Remover produto"
-        >
-          <span>Remover</span>
-        </button>
-      </div>
+      <div className="mt-auto" />
     </article>
   );
 }
