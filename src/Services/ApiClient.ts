@@ -5,7 +5,6 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-// Usa Message (ou message) do response da API como mensagem de erro no popup
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {

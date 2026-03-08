@@ -8,6 +8,7 @@ import {
   deleteClient as deleteClientService,
   getTotalStockValueByClientId as getTotalStockValueByClientIdService,
   payClientAccount as payClientAccountService,
+  generatePdf as generatePdfService,
 } from '../Services/ClientService';
 import { useError } from './ErrorContext';
 
@@ -26,6 +27,7 @@ interface ClientContextType {
   deleteClient: (id: number) => Promise<boolean>;
   getTotalStockValueByClientId: (id: number) => Promise<number>;
   payClientAccount: (id: number) => Promise<boolean>;
+  generatePdf: (id: number, clientName: string) => Promise<void>;
 }
 
 const ClientContext = createContext<ClientContextType>({
@@ -42,7 +44,8 @@ const ClientContext = createContext<ClientContextType>({
   updateClient: async () => null,
   deleteClient: async () => false,
   getTotalStockValueByClientId: async () => 0,
-  payClientAccount: async () => false
+  payClientAccount: async () => false,
+  generatePdf: async () => { }
 });
 
 export const ClientProvider = ({ children }: { children: ReactNode }) => {
@@ -183,6 +186,20 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const generatePdf = async (id: number, clientName: string): Promise<void> => {
+    setLoading(true);
+    setError(null);
+    try {
+      await generatePdfService(id, clientName);
+    } catch (err: any) {
+      const apiMessage = err.response?.data?.message || 'Erro ao gerar PDF';
+      setError(apiMessage);
+      showError(apiMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <ClientContext.Provider
       value={{
@@ -199,7 +216,8 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
         updateClient,
         deleteClient,
         getTotalStockValueByClientId,
-        payClientAccount
+        payClientAccount,
+        generatePdf
       }}
     >
       {children}

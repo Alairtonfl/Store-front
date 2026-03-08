@@ -60,3 +60,18 @@ export async function payClientAccount(id: number): Promise<PayClientAccountResu
 
   return { success, message };
 }
+
+export async function generatePdf(id: number, clientName: string): Promise<void> {
+  const response = await apiClient.get(`/api/client/generate-pdf/${id}`, {
+    responseType: 'blob',
+  });
+  
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `relatorio_${clientName.toLowerCase().replace(/\s+/g, '_')}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}

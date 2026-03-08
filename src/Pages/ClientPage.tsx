@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useProduct } from "../Contexts/ProductContext";
 import { useClient } from "../Contexts/ClientContext";
 import Navbar from "../Components/NavBar";
-import { ArrowLeft, Plus, Search } from "lucide-react";
+import { ArrowLeft, Plus, Search, FileText } from "lucide-react";
 import ProductCard from "../Components/ProductCard";
 import AddProductForm from "../Components/AddProductForm";
 
@@ -21,7 +21,7 @@ export default function ClientPage() {
     updateProduct,
     deleteProduct,
   } = useProduct();
-  const { getTotalStockValueByClientId, payClientAccount } = useClient();
+  const { getTotalStockValueByClientId, payClientAccount, generatePdf, loading } = useClient();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -56,6 +56,11 @@ export default function ClientPage() {
       }
     } catch {
     }
+  };
+
+  const handleGeneratePdf = async () => {
+    if (!clientId) return;
+    await generatePdf(Number(clientId), clientName);
   };
 
   useEffect(() => {
@@ -136,9 +141,19 @@ export default function ClientPage() {
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <button
                 type="button"
+                title="Gerar PDF"
+                onClick={handleGeneratePdf}
+                disabled={loading}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-slate-600/50 text-slate-300 hover:bg-slate-700/50 text-sm font-semibold transition-colors disabled:opacity-50"
+              >
+                <FileText size={20} strokeWidth={2} />
+                Gerar PDF
+              </button>
+              <button
+                type="button"
                 title="Pagar tudo"
                 onClick={handlePayAll}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-sm font-medium transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-sm font-semibold transition-colors"
               >
                 Pagar tudo
               </button>
