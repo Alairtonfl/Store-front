@@ -12,6 +12,7 @@ interface ProductCardProps {
   product: ProductCardProduct;
   onIncreaseQuantity?: (productId: number) => void;
   onRemove?: (productId: number) => void;
+  isDeleted?: boolean;
 }
 
 function formatDate(dateStr: string) {
@@ -32,6 +33,7 @@ export default function ProductCard({
   product,
   onIncreaseQuantity,
   onRemove,
+  isDeleted = false,
 }: ProductCardProps) {
   return (
     <article className="card-base p-4 sm:p-5 flex flex-col gap-4">
@@ -42,24 +44,26 @@ export default function ProductCard({
             {product.name}
           </h3>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => onIncreaseQuantity?.(product.id)}
-            className="p-2 rounded-lg bg-accent/15 text-accent-400 hover:bg-accent/25 hover:text-accent-300 transition-colors"
-            title="Aumentar quantidade"
-          >
-            <Plus className="w-4 h-4" strokeWidth={2.5} />
-          </button>
-          <button
-            type="button"
-            onClick={() => onRemove?.(product.id)}
-            className="p-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300 transition-colors"
-            title="Remover produto"
-          >
-            <Trash2 className="w-4 h-4" strokeWidth={2} />
-          </button>
-        </div>
+        {!isDeleted && (
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => onIncreaseQuantity?.(product.id)}
+              className="p-2 rounded-lg bg-accent/15 text-accent-400 hover:bg-accent/25 hover:text-accent-300 transition-colors"
+              title="Aumentar quantidade"
+            >
+              <Plus className="w-4 h-4" strokeWidth={2.5} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onRemove?.(product.id)}
+              className="p-2 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 hover:text-red-300 transition-colors"
+              title="Remover produto"
+            >
+              <Trash2 className="w-4 h-4" strokeWidth={2} />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

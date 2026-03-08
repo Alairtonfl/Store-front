@@ -19,16 +19,9 @@ export interface PayClientAccountResult {
   message: string;
 }
 
-export async function fetchClientsPaged(pageIndex: number, pageSize: number): Promise<PagedClientsResponse> {
+export async function fetchClientsPaged(pageIndex: number, pageSize: number, isDeleted: boolean = false): Promise<PagedClientsResponse> {
   const response = await apiClient.get('/api/client/getbyuseridpaged', {
-    params: { pageIndex, pageSize },
-  });
-  return response.data;
-}
-
-export async function fetchDeletedClientsPaged(pageIndex: number, pageSize: number): Promise<PagedClientsResponse> {
-  const response = await apiClient.get('/api/client/getdeletedbyuseridpaged', {
-    params: { pageIndex, pageSize },
+    params: { pageIndex, pageSize, isDeleted },
   });
   return response.data;
 }

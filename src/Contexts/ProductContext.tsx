@@ -8,7 +8,7 @@ interface ProductContextType {
   error: string | null;
   pageIndex: number;
   pageSize: number;
-  fetchProductsByClientIdPaged: (clientId: number, pageIndex?: number, pageSize?: number) => Promise<void>;
+  fetchProductsByClientIdPaged: (clientId: number, pageIndex?: number, pageSize?: number, isDeleted?: boolean) => Promise<void>;
   createProduct: (clientId: number, name: string, stock: number, price: number) => Promise<Product>;
   updateProduct: (id: number) => Promise<Product>;
   deleteProduct: (id: number) => Promise<boolean>;
@@ -32,12 +32,13 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const fetchProducts = async (
     clientId: number,
     requestedPageIndex = pageIndex,
-    requestedPageSize = pageSize
+    requestedPageSize = pageSize,
+    isDeleted = false
   ) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchProductsByClientIdPaged(clientId, requestedPageIndex, requestedPageSize);
+      const res = await fetchProductsByClientIdPaged(clientId, requestedPageIndex, requestedPageSize, isDeleted);
       setProducts(res.data);
       setPageIndex(res.pageIndex);
       setPageSize(res.pageSize);

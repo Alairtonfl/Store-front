@@ -6,6 +6,7 @@ import LoginPage from '../Pages/LoginPage';
 import ClientPage from '../Pages/ClientPage';
 import Dashboard from '../Pages/Dashboard';
 import TrashPage from '../Pages/TrashPage';
+import DeletedProductsPage from '../Pages/DeletedProductsPage';
 import Loading from '../Components/Loading';
 
 export default function AppRoutes() {
@@ -26,6 +27,7 @@ export default function AppRoutes() {
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/trash" element={<TrashPage />} />
+          <Route path="/trash/cliente/:clientId" element={<DeletedProductsPage />} />
           <Route path="/cliente/:clientId" element={<ClientPage />} />
         </Route>
       </Routes>

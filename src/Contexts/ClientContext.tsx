@@ -2,7 +2,6 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 import {
   Client,
   fetchClientsPaged,
-  fetchDeletedClientsPaged,
   createClient as createClientService,
   updateClient as updateClientService,
   deleteClient as deleteClientService,
@@ -65,7 +64,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchClientsPaged(requestedPageIndex, requestedPageSize);
+      const res = await fetchClientsPaged(requestedPageIndex, requestedPageSize, false);
       setClients(res.data);
       setPageIndex(pageIndex);
       setPageSize(pageSize);
@@ -85,7 +84,7 @@ export const ClientProvider = ({ children }: { children: ReactNode }) => {
     setLoadingDeleted(true);
     setError(null);
     try {
-      const res = await fetchDeletedClientsPaged(requestedPageIndex, requestedPageSize);
+      const res = await fetchClientsPaged(requestedPageIndex, requestedPageSize, true);
       setDeletedClients(res.data);
     } catch (err: any) {
       const msg = err.message || 'Erro ao buscar clientes excluídos';

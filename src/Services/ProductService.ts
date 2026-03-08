@@ -19,13 +19,15 @@ export interface PagedProductsResponse {
 export async function fetchProductsByClientIdPaged(
   clientId: number,
   pageIndex: number,
-  pageSize: number
+  pageSize: number,
+  isDeleted: boolean = false
 ): Promise<PagedProductsResponse> {
   const response = await apiClient.get('/api/product/getbyclientidpaged', {
     params: {
       clientId,
       pageIndex,
       pageSize,
+      isDeleted,
     },
   });
   return response.data;

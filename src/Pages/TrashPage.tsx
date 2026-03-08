@@ -23,6 +23,13 @@ export default function TrashPage() {
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleViewClient = (clientId: number) => {
+    const client = deletedClients.find((c) => c.id === clientId);
+    navigate(`/trash/cliente/${clientId}`, {
+      state: { clientName: client?.name },
+    });
+  };
+
   return (
     <>
       <Navbar
@@ -72,6 +79,7 @@ export default function TrashPage() {
                   key={client.id}
                   client={client}
                   isDeleted
+                  onView={handleViewClient}
                 />
               ))}
 

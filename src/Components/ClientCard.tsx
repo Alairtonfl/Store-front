@@ -22,7 +22,7 @@ export default function ClientCard({
   onRestore,
 }: ClientCardProps) {
   const handleCardClick = () => {
-    if (!isDeleted) onView?.(client.id);
+    onView?.(client.id);
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
@@ -30,7 +30,7 @@ export default function ClientCard({
     onDelete?.(client.id);
   };
 
-  const isClickable = !isDeleted && onView;
+  const isClickable = !!onView;
 
   return (
     <article
