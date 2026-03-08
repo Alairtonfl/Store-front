@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useProduct } from '../Contexts/ProductContext';
-import { X } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 
 interface AddProductFormProps {
   clientId: number;
@@ -126,18 +126,21 @@ export default function AddProductForm({ clientId, onClose }: AddProductFormProp
           <button
             type="button"
             onClick={onClose}
-            className="btn-secondary"
+            className="btn-secondary flex items-center gap-2 text-sm"
             disabled={loading}
           >
+            <X size={18} />
             Cancelar
           </button>
           <button
             type="submit"
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 text-sm"
             disabled={loading}
           >
-{loading && (
+            {loading ? (
               <span className="w-4 h-4 border-2 border-surface-950 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Save size={18} />
             )}
             {loading ? 'Salvando...' : 'Salvar'}
           </button>

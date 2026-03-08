@@ -74,10 +74,10 @@ export default function Dashboard() {
             <button
               onClick={openAddClientModal}
               title="Adicionar Cliente"
-              className="btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto"
+              className="btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto text-sm"
             >
               <Plus size={20} strokeWidth={2.5} />
-              Adicionar cliente
+              Adicionar
             </button>
           </div>
 

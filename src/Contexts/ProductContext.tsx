@@ -12,6 +12,7 @@ interface ProductContextType {
   createProduct: (clientId: number, name: string, stock: number, price: number) => Promise<Product>;
   updateProduct: (id: number) => Promise<Product>;
   deleteProduct: (id: number) => Promise<boolean>;
+  clearProducts: () => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -23,6 +24,10 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10000);
+
+  const clearProducts = () => {
+    setProducts([]);
+  };
 
   const fetchProducts = async (
     clientId: number,
@@ -67,7 +72,6 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       const updated = await updateProductService(id);
-      // API pode retornar id: 0; usamos o id do parâmetro para localizar e manter o produto correto
       setProducts((prev) => prev.map((p) => (p.id === id ? { ...updated, id: p.id } : p)));
       return { ...updated, id };
     } catch (err: any) {
@@ -108,7 +112,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         fetchProductsByClientIdPaged: fetchProducts,
         createProduct,
         updateProduct,
-        deleteProduct
+        deleteProduct,
+        clearProducts
       }}
     >
       {children}
