@@ -1,8 +1,9 @@
-import { User, Trash2 } from "lucide-react";
+import { User, Trash2, Calendar } from "lucide-react";
 
 export interface ClientCardClient {
   id: number;
   name: string;
+  deletionDate?: string;
 }
 
 interface ClientCardProps {
@@ -29,18 +30,13 @@ export default function ClientCard({
     onDelete?.(client.id);
   };
 
-  const handleRestoreClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRestore?.(client.id);
-  };
-
   const isClickable = !isDeleted && onView;
 
   return (
     <article
       onClick={isClickable ? handleCardClick : undefined}
       role={isClickable ? "button" : undefined}
-      tabIndex={isClickable ? 0 : undefined}
+      tabIndex={isClickable ? "0" : undefined}
       onKeyDown={
         isClickable
           ? (e) => {
@@ -57,10 +53,12 @@ export default function ClientCard({
           : ""
       }`}
     >
-
       <div className="flex items-start justify-between gap-2 min-w-0">
         <div className="flex items-start gap-2 min-w-0">
-          <User className="w-5 h-5 text-accent-400 shrink-0 mt-0.5" strokeWidth={2} />
+          <User
+            className="w-5 h-5 text-accent-400 shrink-0 mt-0.5"
+            strokeWidth={2}
+          />
           <h3
             className={`text-lg font-semibold text-white truncate transition-colors ${
               isClickable ? "group-hover:text-accent-400" : ""
@@ -70,7 +68,7 @@ export default function ClientCard({
             {client.name}
           </h3>
         </div>
-        {!isDeleted && onDelete && (
+        {!isDeleted && onDelete ? (
           <button
             type="button"
             onClick={handleDeleteClick}
@@ -79,21 +77,18 @@ export default function ClientCard({
           >
             <Trash2 className="w-4 h-4" strokeWidth={2} />
           </button>
-        )}
+        ) : isDeleted && client.deletionDate ? (
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Excluído em</span>
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <Calendar className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">
+                {new Date(client.deletionDate).toLocaleDateString()}
+              </span>
+            </div>
+          </div>
+        ) : null}
       </div>
-
-      {isDeleted && (
-        <div className="mt-auto pt-4 border-t border-slate-700/50">
-          <button
-            type="button"
-            onClick={handleRestoreClick}
-            className="w-full min-h-[44px] sm:min-h-[40px] flex items-center justify-center gap-2 px-4 py-3 sm:py-2 rounded-xl bg-accent/20 text-accent-400 hover:bg-accent/30 font-medium text-sm transition-colors active:scale-[0.98]"
-            title="Restaurar cliente"
-          >
-            <span>Restaurar</span>
-          </button>
-        </div>
-      )}
     </article>
   );
 }

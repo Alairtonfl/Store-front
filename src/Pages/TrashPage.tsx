@@ -23,11 +23,6 @@ export default function TrashPage() {
     client.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleRestoreClient = async (clientId: number) => {
-    // TODO: integrate with restore client API
-    console.log("Restore client", clientId);
-  };
-
   return (
     <>
       <Navbar
@@ -77,7 +72,6 @@ export default function TrashPage() {
                   key={client.id}
                   client={client}
                   isDeleted
-                  onRestore={handleRestoreClient}
                 />
               ))}
 

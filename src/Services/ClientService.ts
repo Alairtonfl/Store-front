@@ -4,6 +4,7 @@ export interface Client {
   id: number;
   userId: number;
   name: string;
+  deletionDate?: string;
 }
 
 export interface PagedClientsResponse {
