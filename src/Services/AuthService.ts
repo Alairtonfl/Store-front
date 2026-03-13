@@ -11,7 +11,7 @@ export async function login(email: string, password: string): Promise<User> {
   try {
     const response = await apiClient.post('/api/auth/login', { email, password });
     
-    const authHeader = response.headers['Authorization'];
+    const authHeader = response.headers['authorization'];
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       localStorage.setItem('jwt_token', token);
