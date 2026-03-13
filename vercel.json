@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://store-Api-Market.somee.com/api/:path*"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
