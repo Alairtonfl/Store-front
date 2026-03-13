@@ -10,6 +10,13 @@ export interface User {
 export async function login(email: string, password: string): Promise<User> {
   try {
     const response = await apiClient.post('/api/auth/login', { email, password });
+    
+    const authHeader = response.headers['Authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      localStorage.setItem('jwt_token', token);
+    }
+    
     return response.data.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Erro no login');
@@ -21,6 +28,8 @@ export async function logout(): Promise<void> {
     await apiClient.post('/api/auth/logout');
   } catch (error: any) {
     throw new Error(error.response?.data?.message || 'Erro no logout');
+  } finally {
+    localStorage.removeItem('jwt_token');
   }
 }
 
