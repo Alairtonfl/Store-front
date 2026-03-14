@@ -5,6 +5,7 @@ import { useClient } from "../Contexts/ClientContext";
 import Navbar from "../Components/NavBar";
 import { ArrowLeft, Search } from "lucide-react";
 import ProductCard from "../Components/ProductCard";
+import SkeletonCard from "../Components/SkeletonCard";
 
 export default function DeletedProductsPage() {
   const { clientId } = useParams<{ clientId: string }>();
@@ -16,6 +17,7 @@ export default function DeletedProductsPage() {
     products,
     fetchProductsByClientIdPaged,
     clearProducts,
+    loading,
   } = useProduct();
   const { getTotalStockValueByClientId } = useClient();
 
@@ -67,7 +69,7 @@ export default function DeletedProductsPage() {
                   <ArrowLeft size={20} strokeWidth={2} />
                 </button>
                 <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                  {clientName} (Excluído)
+                  {clientName}
                 </h1>
               </div>
               {totalOwed !== null && (
@@ -98,20 +100,28 @@ export default function DeletedProductsPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                isDeleted={true}
-              />
-            ))}
-            {filteredProducts.length === 0 && (
-              <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 rounded-2xl border border-dashed border-slate-700 text-slate-500">
-                <p className="text-center font-medium">Nenhum produto encontrado.</p>
-              </div>
-            )}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
+              {[...Array(6)].map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isDeleted={true}
+                />
+              ))}
+              {filteredProducts.length === 0 && (
+                <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 rounded-2xl border border-dashed border-slate-700 text-slate-500">
+                  <p className="text-center font-medium">Nenhum produto encontrado.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
     </>

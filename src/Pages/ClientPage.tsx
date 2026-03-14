@@ -6,6 +6,7 @@ import Navbar from "../Components/NavBar";
 import { ArrowLeft, Plus, Search, FileText, CheckCircle } from "lucide-react";
 import ProductCard from "../Components/ProductCard";
 import AddProductForm from "../Components/AddProductForm";
+import SkeletonCard from "../Components/SkeletonCard";
 
 export default function ClientPage() {
   const { clientId } = useParams<{ clientId: string }>();
@@ -21,8 +22,9 @@ export default function ClientPage() {
     updateProduct,
     deleteProduct,
     clearProducts,
+    loading: loadingProducts,
   } = useProduct();
-  const { getTotalStockValueByClientId, payClientAccount, generatePdf, loading } = useClient();
+  const { getTotalStockValueByClientId, payClientAccount, generatePdf, loading: loadingClient } = useClient();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -147,7 +149,7 @@ export default function ClientPage() {
                 type="button"
                 title="Gerar PDF"
                 onClick={handleGeneratePdf}
-                disabled={loading}
+                disabled={loadingClient}
                 className="btn-secondary inline-flex items-center justify-center gap-2 text-sm p-3.5 sm:px-6"
               >
                 <FileText size={20} strokeWidth={2} />
@@ -187,22 +189,30 @@ export default function ClientPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onIncreaseQuantity={handleIncreaseQuantity}
-                onRemove={handleRemoveProduct}
-              />
-            ))}
-            {filteredProducts.length === 0 && (
-              <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 rounded-2xl border border-dashed border-slate-700 text-slate-500">
-                <p className="text-center font-medium">Nenhum produto encontrado.</p>
-                <p className="text-sm mt-1">Adicione um produto ou ajuste a busca.</p>
-              </div>
-            )}
-          </div>
+          {loadingProducts ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in">
+              {[...Array(6)].map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onIncreaseQuantity={handleIncreaseQuantity}
+                  onRemove={handleRemoveProduct}
+                />
+              ))}
+              {filteredProducts.length === 0 && (
+                <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 rounded-2xl border border-dashed border-slate-700 text-slate-500">
+                  <p className="text-center font-medium">Nenhum produto encontrado.</p>
+                  <p className="text-sm mt-1">Adicione um produto ou ajuste a busca.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
 
