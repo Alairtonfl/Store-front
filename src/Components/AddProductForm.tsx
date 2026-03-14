@@ -1,17 +1,20 @@
-import { useState } from 'react';
-import { useProduct } from '../Contexts/ProductContext';
-import { X, Save } from 'lucide-react';
+import { useState } from "react";
+import { useProduct } from "../Contexts/ProductContext";
+import { X, Save } from "lucide-react";
 
 interface AddProductFormProps {
   clientId: number;
   onClose: () => void;
 }
 
-export default function AddProductForm({ clientId, onClose }: AddProductFormProps) {
+export default function AddProductForm({
+  clientId,
+  onClose,
+}: AddProductFormProps) {
   const { createProduct } = useProduct();
-  const [name, setName] = useState('');
-  const [stock, setStock] = useState('');
-  const [price, setPrice] = useState('');
+  const [name, setName] = useState("");
+  const [stock, setStock] = useState("");
+  const [price, setPrice] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,30 +25,35 @@ export default function AddProductForm({ clientId, onClose }: AddProductFormProp
     const parsedPrice = Number(price);
 
     if (name.trim().length <= 4) {
-      setError('O nome deve ter mais de 4 caracteres.');
+      setError("O nome deve ter mais de 4 caracteres.");
       return;
     }
 
     if (isNaN(parsedStock) || parsedStock <= 0) {
-      setError('O estoque deve ser maior que zero.');
+      setError("O estoque deve ser maior que zero.");
       return;
     }
 
     if (isNaN(parsedPrice) || parsedPrice <= 0) {
-      setError('O preço deve ser maior que zero.');
+      setError("O preço deve ser maior que zero.");
       return;
     }
 
     setLoading(true);
     try {
-      const newProduct = await createProduct(clientId, name, parsedStock, parsedPrice);
+      const newProduct = await createProduct(
+        clientId,
+        name,
+        parsedStock,
+        parsedPrice,
+      );
       if (newProduct) {
         onClose();
       } else {
-        setError('Erro ao criar produto.');
+        setError("Erro ao criar produto.");
       }
     } catch (err: any) {
-      setError(err.message || 'Erro desconhecido.');
+      setError(err.message || "Erro desconhecido.");
     } finally {
       setLoading(false);
     }
@@ -71,11 +79,16 @@ export default function AddProductForm({ clientId, onClose }: AddProductFormProp
           <X size={20} strokeWidth={2} />
         </button>
 
-        <h2 className="text-xl font-bold text-white mb-4 pr-8">Adicionar Produto</h2>
+        <h2 className="text-xl font-bold text-white mb-4 pr-8">
+          Adicionar Produto
+        </h2>
 
         <div className="space-y-4">
           <div>
-            <label htmlFor="product-name" className="block mb-2 text-sm font-medium text-slate-300">
+            <label
+              htmlFor="product-name"
+              className="block mb-2 text-sm font-medium text-slate-300"
+            >
               Nome do produto
             </label>
             <input
@@ -83,38 +96,56 @@ export default function AddProductForm({ clientId, onClose }: AddProductFormProp
               type="text"
               placeholder="Nome do produto"
               value={name}
+              maxLength={50}
               onChange={(e) => setName(e.target.value)}
               className="input-field"
             />
           </div>
 
           <div>
-            <label htmlFor="product-stock" className="block mb-2 text-sm font-medium text-slate-300">
+            <label
+              htmlFor="product-stock"
+              className="block mb-2 text-sm font-medium text-slate-300"
+            >
               Estoque
             </label>
             <input
               id="product-stock"
-              type="number"
+              type="text"
               placeholder="Estoque"
               value={stock}
-              onChange={(e) => setStock(e.target.value)}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "");
+                setStock(value);
+              }}
               className="input-field"
               min={0}
+              maxLength={5}
+              max={99999}
             />
           </div>
 
           <div>
-            <label htmlFor="product-price" className="block mb-2 text-sm font-medium text-slate-300">
+            <label
+              htmlFor="product-price"
+              className="block mb-2 text-sm font-medium text-slate-300"
+            >
               Preço
             </label>
             <input
               id="product-price"
-              type="number"
+              type="text"
               placeholder="Preço"
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onChange={(e) => {
+                let value = e.target.value.replace(/\D/g, "");
+                value = (Number(value) / 100).toFixed(2);
+                setPrice(value);
+              }}
               className="input-field"
               min={0}
+              maxLength={8}
+              max={99999}
               step="0.01"
             />
           </div>
@@ -142,7 +173,7 @@ export default function AddProductForm({ clientId, onClose }: AddProductFormProp
             ) : (
               <Save size={18} />
             )}
-            {loading ? 'Salvando...' : 'Salvar'}
+            {loading ? "Salvando..." : "Salvar"}
           </button>
         </div>
       </form>

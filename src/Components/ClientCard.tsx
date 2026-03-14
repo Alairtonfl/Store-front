@@ -83,7 +83,7 @@ export default function ClientCard({
             <div className="flex items-center gap-1.5 text-slate-400">
               <Calendar className="w-3.5 h-3.5" />
               <span className="text-xs font-medium">
-                {new Date(client.deletionDate).toLocaleDateString()}
+                {client.deletionDate}
               </span>
             </div>
           </div>

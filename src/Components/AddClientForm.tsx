@@ -65,6 +65,7 @@ export default function AddClientForm({ onClose }: AddClientFormProps) {
           id="client-name"
           type="text"
           placeholder="Nome do cliente"
+          maxLength={50}
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="input-field mb-2"

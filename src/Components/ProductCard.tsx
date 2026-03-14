@@ -15,20 +15,6 @@ interface ProductCardProps {
   isDeleted?: boolean;
 }
 
-function formatDate(dateStr: string) {
-  if (!dateStr) return "—";
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
-
 export default function ProductCard({
   product,
   onIncreaseQuantity,
@@ -87,7 +73,7 @@ export default function ProductCard({
           <Calendar className="w-4 h-4 text-accent-400 shrink-0" strokeWidth={2} />
           <div className="min-w-0">
             <p className="text-xs text-slate-500 uppercase tracking-wide">Data</p>
-            <p className="font-medium text-white text-sm">{formatDate(product.creationDate)}</p>
+            <p className="font-medium text-white text-sm">{product.creationDate}</p>
           </div>
         </div>
       </div>
